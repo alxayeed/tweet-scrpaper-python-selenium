@@ -14,7 +14,7 @@ driver.get(url)
 def waiting_func(by_variable, attribute):
     try:
         WebDriverWait(driver, 20).until(
-            lambda x: x.find_element(by=by_variable,  value=attribute))
+            EC.presence_of_element_located((By.LINK_TEXT, "Log in")))
     except (NoSuchElementException, TimeoutException):
         print('{} {} not found'.format(by_variable, attribute))
         exit()
