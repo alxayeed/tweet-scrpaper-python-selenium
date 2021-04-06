@@ -3,30 +3,42 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+import os
+import time
+from selenium.webdriver.chrome.options import Options
 
 
 # Access to twitter
+options = Options()
+options.add_argument("--start-maximized")
+
 url = 'https://twitter.com'
-driver = webdriver.Chrome()
+driver = webdriver.Chrome(options=options)
 driver.get(url)
 
 
 def waiting_func(by_variable, attribute):
     try:
-        WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.LINK_TEXT, "Log in")))
+        WebDriverWait(driver, 10).until(
+            lambda x: x.find_element(by=by_variable,  value=attribute))
     except (NoSuchElementException, TimeoutException):
         print('{} {} not found'.format(by_variable, attribute))
         exit()
 
 
-# try:
-#     login_btn = WebDriverWait(driver, 10).until(
-#         EC.presence_of_element_located((By.LINK_TEXT, "Log in"))
-#     )
-# finally:
-#     login_btn.click()
-
 waiting_func('link text', 'Log in')
 login_btn = driver.find_element_by_link_text('Log in')
+time.sleep(5)
 login_btn.click()
+
+# get email input field and fill it with username
+waiting_func('name', "session[username_or_email]")
+email_input = driver.find_element_by_name("session[username_or_email]")
+username = os.environ['USER_NAME']
+email_input.send_keys(username)
+
+# get password input field and fill it with username
+waiting_func('name', "session[password]")
+password_input = driver.find_element_by_name("session[password]")
+password = os.environ['PASSWORD']
+password_input.send_keys(password)
