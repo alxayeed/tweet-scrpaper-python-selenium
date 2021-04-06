@@ -44,3 +44,7 @@ waiting_func('name', "session[password]")
 password_input = driver.find_element_by_name("session[password]")
 password = os.environ['PASSWORD']
 password_input.send_keys(password, Keys.ENTER)
+
+# go to account
+account_url = f'{url}/{username}'
+driver.get(account_url)
