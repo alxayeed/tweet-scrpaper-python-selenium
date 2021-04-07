@@ -21,7 +21,7 @@ driver.get(url)
 
 def waiting_func(by_variable, attribute):
     try:
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 20).until(
             lambda x: x.find_element(by=by_variable,  value=attribute))
     except (NoSuchElementException, TimeoutException):
         print('{} {} not found'.format(by_variable, attribute))
@@ -30,11 +30,12 @@ def waiting_func(by_variable, attribute):
 
 waiting_func('link text', 'Log in')
 login_btn = driver.find_element_by_link_text('Log in')
-time.sleep(3)
+time.sleep(5)
 login_btn.click()
 
 # get email input field and fill it with username
 waiting_func('name', "session[username_or_email]")
+time.sleep(5)
 email_input = driver.find_element_by_name("session[username_or_email]")
 username = os.environ['USER_NAME']
 email_input.send_keys(username)
@@ -48,3 +49,20 @@ password_input.send_keys(password, Keys.ENTER)
 # go to account
 account_url = f'{url}/{username}'
 driver.get(account_url)
+
+
+tweets_path = []
+while True:
+    time.sleep(5)
+    last_height = driver.execute_script("return document.body.scrollHeight")
+    tweet_path = driver.find_elements_by_css_selector(
+        "[aria-label='View Tweet activity']")
+    # print(tweet_path)
+    tweets_path.extend([tweet.get_attribute('href') for tweet in tweet_path])
+    driver.execute_script("window.scrollTo(0, {})".format(last_height + 500))
+    time.sleep(5)
+    new_height = driver.execute_script("return document.body.scrollHeight")
+    if new_height == last_height:
+        break
+
+print(tweets_path)
