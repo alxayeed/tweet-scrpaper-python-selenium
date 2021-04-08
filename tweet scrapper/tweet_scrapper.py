@@ -67,12 +67,16 @@ while True:
         break
 
 
+print(tweets_path)
 # locate the iframe of tweet dashboard
 tweet_details = []
 for path in tweets_path:
     driver.get(path)
-    time.sleep(5)
-    iframe = driver.find_element_by_tag_name('iframe')
+
+    iframe = WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.TAG_NAME, "iframe"))
+    )
+
     driver.switch_to.frame(iframe)
 
     detail = driver.find_element_by_tag_name('body')
@@ -80,11 +84,68 @@ for path in tweets_path:
 
     impression = detail.find_element_by_class_name('ep-MetricAnimation')
     # engagements = detail.find_element_by_class_name('ep-EngagementsSection')
-    print(f"title is {title} \nTotal Impression {impression.text}")
+    # print(f"title is {title} \nTotal Impression {impression.text}")
     tweet_array = {}
     tweet_array['title'] = title
     tweet_array['impression'] = impression.text
 
-    tweet_details.append(tweet_array)
+    # engagements
+    try:
+        WebDriverWait(driver, 3).until(
+            lambda x: x.find_element(
+                by="class name", value="ep-ViewAllEngagementsButton")
+        )
 
-print(tweet_details)
+        view_all = driver.find_element_by_class_name(
+            'ep-ViewAllEngagementsButton')
+        view_all.click()
+
+        engagement_details = driver.find_elements_by_class_name(
+            'ep-SubSection')
+
+        for _ in engagement_details:
+            print(_.text)
+
+        # total_engagements = driver.find_element_by_class_name(
+        #     'ep-MetricTopContainer')
+        # title = total_engagements.find_element_by_class_name(
+        #     'ep-MetricName').text
+        # total = total_engagements.find_element_by_class_name(
+        #     'ep-MetricValue').text
+
+        # print(title, total)
+
+        # tweet_array[title] = total
+
+        # sub_section = driver.find_element_by_class_name(
+        #     'ep-EngagementsSection')
+        # sub_section_top = sub_section.find_element_by_class_name(
+        #     'ep-MetricTopContainer')
+        # title = sub_section_top.find_element_by_class_name(
+        #     'ep-MetricName').text
+        # total = sub_section_top.find_element_by_class_name(
+        #     'ep-MetricValue').text
+
+        # print(title, total)
+        # tweet_array[title] = total
+
+        # links_click_section = driver.find_element_by_class_name(
+        #     'ep-SubSection')
+        # sub_section_top = links_click_section.find_element_by_class_name(
+        #     'ep-MetricTopContainer')
+        # title = sub_section_top.find_element_by_class_name(
+        #     'ep-MetricName').text
+        # total = sub_section_top.find_element_by_class_name(
+        #     'ep-MetricValue').text
+
+        # print('printing links click')
+        # print(title, total)
+        # tweet_array[title] = total
+
+        # tweet_details.append(tweet_array)
+
+    except TimeoutException:
+        pass
+
+
+# print(tweet_details)
