@@ -45,19 +45,20 @@ waiting_func('name', "session[password]")
 password_input = driver.find_element_by_name("session[password]")
 password = os.environ['PASSWORD']
 password_input.send_keys(password, Keys.ENTER)
+driver.switch_to.default_content()
 
 # go to account
 account_url = f'{url}/{username}'
 driver.get(account_url)
 
-
+# this will contain all the tweet details links
 tweets_path = []
 while True:
     time.sleep(5)
     last_height = driver.execute_script("return document.body.scrollHeight")
     tweet_path = driver.find_elements_by_css_selector(
         "[aria-label='View Tweet activity']")
-    # print(tweet_path)
+
     tweets_path.extend([tweet.get_attribute('href') for tweet in tweet_path])
     driver.execute_script("window.scrollTo(0, {})".format(last_height + 500))
     time.sleep(5)
@@ -65,4 +66,25 @@ while True:
     if new_height == last_height:
         break
 
-print(tweets_path)
+
+# locate the iframe of tweet dashboard
+tweet_details = []
+for path in tweets_path:
+    driver.get(path)
+    time.sleep(5)
+    iframe = driver.find_element_by_tag_name('iframe')
+    driver.switch_to.frame(iframe)
+
+    detail = driver.find_element_by_tag_name('body')
+    title = detail.find_element_by_class_name('QuoteTweet-text').text
+
+    impression = detail.find_element_by_class_name('ep-MetricAnimation')
+    # engagements = detail.find_element_by_class_name('ep-EngagementsSection')
+    print(f"title is {title} \nTotal Impression {impression.text}")
+    tweet_array = {}
+    tweet_array['title'] = title
+    tweet_array['impression'] = impression.text
+
+    tweet_details.append(tweet_array)
+
+print(tweet_details)
